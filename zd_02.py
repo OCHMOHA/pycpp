@@ -1,43 +1,33 @@
 import math
 
-g = 9.81  # Acceleration due to gravity
+g = 9.81
 
-def f(alpha, V, L):
-    return (V**2 * math.sin(2 * alpha)) / g - L
+V = float(input("Enter initial velocity (m/s): "))
+L = float(input("Enter target distance (m): "))
 
-def df(alpha, V):
-    return (2 * V**2 * math.cos(2 * alpha)) / g
 
-def newton_method(V, L, initial_guess, tol=1e-6, max_iter=100):
-    alpha = initial_guess
-    for _ in range(max_iter):
-        f_val = f(alpha, V, L)
-        df_val = df(alpha, V)
-        
-        if abs(df_val) < 1e-10:  # Avoid division by near-zero
-            break
-        
-        delta = f_val / df_val
-        alpha -= delta
-        
-        if abs(delta) < tol:
-            break
-    return alpha
-
-if __name__ == "__main__":
-    V = float(input("Enter initial velocity (V): "))
-    L = float(input("Enter desired range (L): "))
+max_L = V**2 / g
+if L > max_L:
+    print(f"Impossible! Maximum distance is {max_L:.2f} m")
+else:
     
-    L_max = V**2 / g
-    if L > L_max:
-        print(f"Error: Desired range {L:.2f} m exceeds maximum possible range {L_max:.2f} m.")
-    else:
+    alpha = math.pi/4
+    for _ in range(100):
 
-        alpha_rad = newton_method(V, L, math.pi/4)
-        alpha_deg = math.degrees(alpha_rad)
+        current = (V**2 * math.sin(2*alpha))/g - L
+        slope = (2 * V**2 * math.cos(2*alpha))/g
         
-
-        if 0 <= alpha_deg <= 90:
-            print(f"Required launch angle α: {alpha_deg:.2f}°")
-        else:
-            print("Newton's Method failed to converge. Try another method.")
+        if abs(slope) < 1e-10:
+            break
+            
+        alpha -= current/slope
+        
+        if abs(current) < 1e-6:
+            break
+    
+    angle_deg = math.degrees(alpha)
+    
+    if -0.1 <= angle_deg <= 90.1:  
+        print(f"Launch angle needed: {angle_deg:.2f}°")
+    else:
+        print("No valid solution found (numerical error)")
