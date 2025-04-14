@@ -1,24 +1,13 @@
-import math
+from math import asin, degrees
 
-g = 9.81
+def calculate_launch_angle(V, T):
 
+    g = 9.81  
+    a = asin((g * T) / (2 * V))
+    return degrees(a)
 
-V = float(input("Enter initial velocity (V): "))
-T = float(input("Enter flight time (T): "))
+V = float(input("Enter initial velocity V (m/s): "))
+T = float(input("Enter flight time T (s): "))
 
-alpha = math.pi / 4 
-tolerance = 1e-6
-
-while True:
-    f = 2 * V * math.sin(alpha) - g * T
-    df = 2 * V * math.cos(alpha)
-    
-    alpha -= f / df
-    
-    if abs(f) < tolerance:
-        break
-
-alpha_deg = alpha * 180 / math.pi
-
-print(f"Launch angle (radians): {alpha:.6f}")
-print(f"Launch angle (degrees): {alpha_deg:.6f}")
+alpha = calculate_launch_angle(V, T)
+print(f"Launch angle α = {alpha:.2f}°")
