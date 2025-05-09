@@ -1,57 +1,42 @@
 #include <iostream>
 #include <cmath>
-#include <iomanip>
 using namespace std;
 
-const double g = 9.81;
+const double H = 5.0;      // Max height in meters
+const double L = 20.0;     // Horizontal range in meters
+const double g = 9.81;     // Acceleration due to gravity
 
-
-double f(double alpha, double H, double L) {
-    return (4*H)/L - tan(alpha);
+// Function: f(x) = 4H / L (constant)
+double exmp_function(double x) {
+    return (4 * H / L);
 }
 
-
-double df(double alpha) {
-    return -1.0/pow(cos(alpha), 2);
-}
-
-
-double newton_method(double H, double L, double initial_guess, double tol = 1e-6) {
-    double alpha = initial_guess;
-    for (int i = 0; i < 100; ++i) {
-        double step = f(alpha, H, L)/df(alpha);
-        alpha -= step;
-        if (abs(step) < tol) break;
+// Iterative method to solve for alpha
+double iter_method(double x_0, double epsilon) {
+    double x = x_0;
+    int iter = 0;
+    while (true) {
+        double x_new = 4 * H / L;  // Fixed value
+        if (abs(x_new - x) < epsilon) {
+            cout << "Number of iterations: " << iter << endl;
+            return x_new;
+        }
+        x = x_new;
+        iter++;
     }
-    return alpha;
 }
 
 int main() {
-    double H, L;
-    
-    cout << "Enter maximum height (H): ";
-    cin >> H;
-    cout << "Enter range (L): ";
-    cin >> L;
+    double x_0 = 0.5;          // Initial guess in radians
+    double epsilon = 1e-8;     // Tolerance
 
+    double x_root = iter_method(x_0, epsilon);
+    cout << "Solving the equation: x = " << x_root << " radians ("
+         << x_root * (180.0 / M_PI) << " degrees)" << endl;
 
-    double initial_guess = atan(4*H/L);
-    
-    // Solve using Newton's method
-    double alpha_rad = newton_method(H, L, initial_guess);
-    double alpha_deg = alpha_rad * 180/M_PI;
-    
-    // Calculate velocity
-    double V = sqrt((g*L)/sin(2*alpha_rad));
-
-
-    cout << fixed << setprecision(6);
-    cout << "\nResults:" << endl;
-    cout << "Launch angle (α): " << alpha_deg << " degrees" << endl;
-    cout << "Initial velocity (V): " << V << " m/s" << endl;
-    cout << "Validation:" << endl;
-    cout << "Max height should be: " << H << " m" << endl;
-    cout << "Calculated max height: " << pow(V,2)*pow(sin(alpha_rad),2)/(2*g) << " m" << endl;
+    // Compute V using V = sqrt(gL / sin(2 * alpha))
+    double V = sqrt(g * L / sin(2 * x_root));
+    cout << "Initial velocity V = " << V << " m/s" << endl;
 
     return 0;
 }
