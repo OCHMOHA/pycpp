@@ -1,55 +1,35 @@
-import math
+from math import *
 
-def calculate_launch_parameters(H, L):
-    g = 9.81 
-    
+# Known values
+H = 5.0   # Max height in meters
+L = 20.0  # Horizontal range in meters
+g = 9.81  # Gravitational acceleration
 
-    def f(alpha):
-        return (4 * H) / L - math.tan(alpha)
-    
-    def df(alpha):
-        return -1 / (math.cos(alpha) ** 2) 
-    
- 
-    def newton_method(initial_guess, tol=1e-6, max_iter=100):
-        alpha = initial_guess
-        for _ in range(max_iter):
-            f_val = f(alpha)
-            df_val = df(alpha)
-            
-            if abs(df_val) < 1e-10:  # Prevent division by zero
-                break
-                
-            delta = f_val / df_val
-            alpha -= delta
-            
-            if abs(delta) < tol:
-                break
-        return alpha
-    
+# Function: f(alpha) = tan(alpha) - 4H / L
+def exmp_function(alpha):
+    return tan(alpha) - (4 * H / L)
 
-    initial_guess = math.atan(4 * H / L)
-    
-    # Solve for alpha
-    alpha = newton_method(initial_guess)
-    alpha_deg = math.degrees(alpha)
-    
+# Iterative method to solve f(alpha) = 0
+def iter_method(alpha_0, epsilon):
+    alpha = alpha_0
+    iter = 0
+    while True:
+        # Rearranged fixed-point form: alpha = arctan(4H / L)
+        alpha_new = atan(4 * H / L)
+        if abs(alpha_new - alpha) < epsilon:
+            print(f"Number of iterations: {iter}")
+            return alpha_new
+        alpha = alpha_new
+        iter += 1
 
-    V = math.sqrt((g * L) / math.sin(2 * alpha))
-    
-    return alpha, alpha_deg, V, g
+# Initial guess and precision
+alpha_0 = 0.5  # radians
+epsilon = 1e-8
 
+# Solving
+alpha_root = iter_method(alpha_0, epsilon)
+print(f"Solving the equation: alpha = {alpha_root} radians ({degrees(alpha_root)} degrees)")
 
-H = float(input("Enter maximum height (H) in meters: "))
-L = float(input("Enter range (L) in meters: "))
-
-
-alpha_rad, alpha_deg, V, g = calculate_launch_parameters(H, L)
-
-
-print(f"\nResults:")
-print(f"Launch angle (α): {alpha_deg:.2f}°")
-print(f"Initial velocity (V): {V:.2f} m/s")
-print(f"Validation:")
-print(f"- Calculated max height: {(V**2 * (math.sin(alpha_rad)**2)/(2*g)):.2f} m (should be {H} m)")
-print(f"- Calculated range: {(V**2 * math.sin(2*alpha_rad)/g):.2f} m (should be {L} m)")
+# Now compute V using V = sqrt(gL / sin(2alpha))
+V = sqrt(g * L / sin(2 * alpha_root))
+print(f"Initial velocity V = {V:.4f} m/s")
