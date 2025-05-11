@@ -1,37 +1,27 @@
-import math
+from math import *
 
-# Function to calculate initial phase phi0
 def calculate_phi0(k):
-    return math.asin(1 / k)
+    return asin(1 / k)
 
-# Function to calculate time T
 def calculate_T(omega, phi0):
-    return (math.pi / 2 - phi0) / omega
+    return (pi / 2 - phi0) / omega
 
-# Function for iteration method
-def iteration_method(omega, k, initial_guess, epsilon):
-    T = initial_guess
-    delta = 0
-
+def iteration_method(T_initial, epsilon, omega, k):
+    T = T_initial
+    iter = 0
     while True:
         phi0 = calculate_phi0(k)
-        new_T = calculate_T(omega, phi0)
-        delta = new_T - T
-        T = new_T
-        if abs(delta) < epsilon:
-            break
+        T_new = calculate_T(omega, phi0)
+        if abs(T_new - T) < epsilon:
+            print(f"Number of iterations: {iter}")
+            return T_new
+        T = T_new
+        iter += 1
 
-    return T
+omega = 10
+k = 5
 
-def main():
-    omega = float(input("Enter frequency omega: "))
-    k = float(input("Enter parameter k: "))
-
-    initial_guess = 0  # Initial guess
-    epsilon = 1e-6  # Precision
-
-    T = iteration_method(omega, k, initial_guess, epsilon)
-    print(f"Time moment T when pendulum deflection is maximum: {T}")
-
-if __name__ == "__main__":
-    main()
+T_initial = 0
+epsilon = 1e-6
+T = iteration_method(T_initial, epsilon, omega, k)
+print(f"Time moment when pendulum deflection is maximum: {T}")
