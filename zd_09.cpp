@@ -1,45 +1,42 @@
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 
 using namespace std;
 
-// Function to calculate initial phase phi0
-double calculatePhi0(double k) {
+double calculate_phi0(double k) {
     return asin(1 / k);
 }
 
-// Function to calculate time T
-double calculateT(double omega, double phi0) {
+double calculate_T(double omega, double phi0) {
     return (M_PI / 2 - phi0) / omega;
 }
 
-// Function for iteration method
-double iterationMethod(double omega, double k, double initialGuess, double epsilon) {
-    double T = initialGuess;
-    double delta;
-
-    do {
-        double phi0 = calculatePhi0(k);
-        double newT = calculateT(omega, phi0);
-        delta = newT - T;
-        T = newT;
-    } while (abs(delta) > epsilon);
-
-    return T;
+double iteration_method(double T_initial, double epsilon, double omega, double k) {
+    double T = T_initial;
+    int iter = 0;
+    while (true) {
+        double phi0 = calculate_phi0(k);
+        double T_new = calculate_T(omega, phi0);
+        if (abs(T_new - T) < epsilon) {
+            cout << "Number of iterations: " << iter << endl;
+            return T_new;
+        }
+        T = T_new;
+        iter++;
+    }
 }
 
 int main() {
-    double omega, k;
-    cout << "Enter frequency omega: ";
-    cin >> omega;
-    cout << "Enter parameter k: ";
-    cin >> k;
+    double omega = 10;
+    double k = 5;
 
-    double initialGuess = 0; // Initial guess
-    double epsilon = 1e-6; // Precision
-
-    double T = iterationMethod(omega, k, initialGuess, epsilon);
-    cout << "Time moment T when pendulum deflection is maximum: " << T << endl;
+    double T_initial = 0;
+    double epsilon = 1e-6;
+    double T = iteration_method(T_initial, epsilon, omega, k);
+    
+    cout << fixed << setprecision(6);
+    cout << "Time moment when pendulum deflection is maximum: " << T << endl;
 
     return 0;
 }
