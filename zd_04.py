@@ -1,43 +1,48 @@
-from math import sin, sqrt, radians
+from math import * 
 
-# Given values
-H = 10.0    # height in meters
-V = 20.0    # initial velocity in m/s
-alpha_deg = 45.0  # angle in degrees
-g = 9.81
+g = 9.81 
+V = 20
+a = 45
+H = 10
 
-# Convert angle to radians
-alpha = radians(alpha_deg)
+def y(T, V, a, H):
+    return H + V * T * sin(a) - (g * T**2) / 2.0
 
-# Define the function f(T) based on the equation:
-# T = (V * sin(alpha) / g) * (1 + sqrt(1 + (2 * g * H) / (V^2 * sin^2(alpha))))
-def f(T):
-    return T - (V * sin(alpha) / g) * (1 + sqrt(1 + (2 * g * H) / (V**2 * sin(alpha)**2)))
+def dy(T, V, a):
+    return V * sin(a) - g * T
 
-# Derivative of f(T) with respect to T (approximated numerically)
-def df(T, delta=1e-6):
-    return (f(T + delta) - f(T - delta)) / (2 * delta)
+def newton_method(V, a, H, initial_guess, tolerance=1e-6, max_iterations=100):
+    T = initial_guess 
+    for i in range(max_iterations):
+        y_val = y(T, V, a, H)  
+        dy_val = dy(T, V, a) 
 
-# Newton-Raphson method
-def newton_method(x0, epsilon):
-    x = x0
-    iter_count = 0
-    while True:
-        fx = f(x)
-        dfx = df(x)
-        if dfx == 0:
-            raise ValueError("Zero derivative encountered.")
-        x_new = x - fx / dfx
-        if abs(x_new - x) < epsilon:
-            print(f"Number of iterations: {iter_count}")
-            return x_new
-        x = x_new
-        iter_count += 1
+        if dy_val == 0:
+            print("derivative is zero")
+            return -1
 
-# Initial guess and precision
-x0 = 2.0
-epsilon = 1e-8
+        T_new = T - y_val / dy_val
 
-# Solve for T
-T_result = newton_method(x0, epsilon)
-T_result
+        if abs(T_new - T) < tolerance:
+            return T_new
+
+        T = T_new  
+
+    print(f"did not converge in {max_iterations} iterations.")
+    return -1
+
+a_rad = radians(a)
+
+initial_guess = (V * sin(a_rad)) / g
+
+T = newton_method(V, a_rad, H, initial_guess)
+
+if T != -1:
+    print(f"Flight time T: {T} seconds")
+
+    t = float(input("Enter time t (in seconds): "))
+    x = V * t * cos(a_rad)
+    y_val = max(H + V * t * sin(a_rad) - (g * t**2)/2.0, 0)
+
+    print(f"Horizontal distance x(t): {x} meters")
+    print(f"Height from the bottom of the cliff y(t): {y_val} meters")
