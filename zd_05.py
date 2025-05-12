@@ -1,45 +1,47 @@
-import math
+from math import *
 
-g = 9.81 
+g = 9.81
 
-def calculate_time(H):
-    """Calculate free-fall time from height H"""
-    return math.sqrt(2 * H / g)
+def y(T, U, H):
+    return H - (g * T**2) / 2.0
 
-def calculate_distance(U, T):
-    """Calculate horizontal distance traveled at speed U over time T"""
-    return U * T
+def dy(T):
+    return -g * T
 
-def secant_method(f, x0, x1, epsilon=1e-6, max_iterations=100):
-    """Secant method for finding roots of function f"""
-    for i in range(max_iterations):
-        if f(x1) - f(x0) == 0:
-            print("Secant method failed: f(x1) - f(x0) = 0.")
+def newton_method(U, H, T_initial, epsilon=1e-6, max_iter=100):
+    T = T_initial
+    for i in range(max_iter):
+        y_val = y(T, U, H)
+        dy_val = dy(T)
+        
+        if dy_val == 0:
+            print("Derivative is zero.")
             return -1
-        x2 = x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0))
-        if abs(x2 - x1) < epsilon:
-            return x2
-        x0 = x1
-        x1 = x2
-    print(f"Secant method did not converge after {max_iterations} iterations.")
+            
+        T_new = T - y_val / dy_val
+        
+        if abs(T_new - T) < epsilon:
+            return T_new
+            
+        T = T_new
+
+        
+    print(f"Did not converge in {max_iter} iterations")
     return -1
 
+H = 50
+U = 400
 
-def main():
-
-    H = float(input("Enter aircraft altitude H (in meters): "))
-    U = float(input("Enter aircraft speed U (in m/s): "))
-
-
-    T = calculate_time(H)
+T_initial = sqrt(2 * H / g)
+epsilon = 1e-6
 
 
-    S = calculate_distance(U, T)
+T = newton_method(U, H, T_initial, epsilon)
 
-
+if T != -1:
     print(f"Bomb flight time T: {T} seconds")
-    print(f"Horizontal distance S: {S} meters")
-
-
-if __name__ == "__main__":
-    main()
+    
+    t = float(input("Enter time t (in seconds): "))
+    x = U * t
+    
+    print(f"Horizontal distance x(t): {x} meters")
