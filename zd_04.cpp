@@ -1,78 +1,66 @@
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 
 using namespace std;
 
-const double g = 9.81;  // Gravitational acceleration (m/s^2)
+const double g = 9.81; 
+const double V = 20;    
+const double a = 45;    
+const double H = 10;    
 
-// Function to calculate y(t) — height from the bottom of the cliff at time t
-double y(double T, double V, double alpha, double H) {
-    return H + V * T * sin(alpha) - (g * T * T) / 2.0;
+double y(double T, double V, double a, double H) {
+    return H + V * T * sin(a) - (g * pow(T, 2)) / 2.0;
 }
 
-double dy(double T, double V, double alpha) {
-    return V * sin(alpha) - g * T;
+double dy(double T, double V, double a) {
+    return V * sin(a) - g * T;
 }
 
-// Newton's method to calculate flight time T
-double newtonMethod(double V, double alpha, double H, double initialGuess, double tolerance = 1e-6, int maxIterations = 100) {
-    double T = initialGuess;
-    for (int i = 0; i < maxIterations; ++i) {
-        double yVal = y(T, V, alpha, H);  // Calculate y(T)
-        double dyVal = dy(T, V, alpha);   // Calculate derivative dy/dt
+double newton_method(double V, double a, double H, double initial_guess, double tolerance=1e-6, int max_iterations=100) {
+    double T = initial_guess;
+    for (int i = 0; i < max_iterations; ++i) {
+        double y_val = y(T, V, a, H);
+        double dy_val = dy(T, V, a);
 
-        if (dyVal == 0) {
-            cout << "The derivative is zero. Newton's method cannot be applied." << endl;
+        if (dy_val == 0) {
+            cout << "derivative is zero" << endl;
             return -1;
         }
 
-        double Tnew = T - yVal / dyVal;
+        double T_new = T - y_val / dy_val;
 
-        // Check for convergence 
-        if (abs(Tnew - T) < tolerance) {
-            return Tnew;
+        if (abs(T_new - T) < tolerance) {
+            return T_new;
         }
 
-        T = Tnew;  
+        T = T_new;
     }
 
-    cout << "Newton's method did not converge within " << maxIterations << " iterations." << endl;
+    cout << "did not converge in " << max_iterations << " iterations." << endl;
     return -1;
 }
 
 int main() {
-    double V, alpha, H, t;
+    double a_rad = a * M_PI / 180.0; 
+    double initial_guess = (V * sin(a_rad)) / g;
 
-    cout << "Enter the initial velocity V (in m/s): ";
-    cin >> V;
-    cout << "Enter the angle alpha (in degrees): ";
-    cin >> alpha;
-    cout << "Enter the height of the cliff H (in meters): ";
-    cin >> H;
-
-    // Convert angle to radians
-    double alphaRad = alpha * M_PI / 180.0;
-
-    // Initial guess for flight time
-    double initialGuess = (V * sin(alphaRad)) / g;
-
-    double T = newtonMethod(V, alphaRad, H, initialGuess);
-
+    double T = newton_method(V, a_rad, H, initial_guess);
 
     if (T != -1) {
-        cout << "Flight time : " << T << " seconds" << endl;
+        cout << fixed << setprecision(10);
+        cout << "Flight time T: " << T << " seconds" << endl;
 
+        double t;
         cout << "Enter time t (in seconds): ";
         cin >> t;
 
-        double x = V * t * cos(alphaRad);
-        double yVal = H + V * t * sin(alphaRad) - (g * t * t) / 2.0;
+        double x = V * t * cos(a_rad);
+        double y_val = max(H + V * t * sin(a_rad) - (g * pow(t, 2))/2.0, 0.0);
 
-        yVal = (yVal > 0) ? yVal : 0;
-
-        // Print the results
+        cout << setprecision(6);
         cout << "Horizontal distance x(t): " << x << " meters" << endl;
-        cout << "Height from the bottom of the cliff y(t): " << yVal << " meters" << endl;
+        cout << "Height from the bottom of the cliff y(t): " << y_val << " meters" << endl;
     }
 
     return 0;
